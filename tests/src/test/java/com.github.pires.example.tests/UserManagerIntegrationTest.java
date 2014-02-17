@@ -1,12 +1,14 @@
 package com.github.pires.example.tests;
 
-import com.github.pires.example.dal.UserService;
+import com.github.pires.example.dal.*;
+import com.github.pires.example.dal.entities.*;
 import org.apache.karaf.features.FeaturesService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.Configuration;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.junit.PaxExam;
+import org.ops4j.pax.exam.karaf.options.KarafDistributionOption;
 import org.ops4j.pax.exam.karaf.options.LogLevelOption.LogLevel;
 import org.osgi.framework.*;
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -15,7 +17,10 @@ import org.osgi.util.tracker.ServiceTracker;
 import javax.inject.Inject;
 import java.io.File;
 import java.util.Dictionary;
+import java.util.List;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.ops4j.pax.exam.CoreOptions.maven;
@@ -64,11 +69,20 @@ public class UserManagerIntegrationTest
                 //load features from feature module
                 features(maven().groupId("com.github.pires.example").artifactId("feature-persistence").type("xml").classifier("features").version("0.1-SNAPSHOT"), "persistence-aries-hibernate"),
 
+                //features(maven().groupId("org.apache.karaf.features").artifactId("standard").type("xml").classifier("features").versionAsInProject(), "http-whiteboard"),
+                features(maven().groupId("org.apache.karaf.features").artifactId("enterprise").type("xml").classifier("features").versionAsInProject(), "transaction", "jpa", "jndi"),
+                //features(maven().groupId("org.apache.cxf.karaf").artifactId("apache-cxf").type("xml").classifier("features").versionAsInProject(), "cxf-jaxws"),
+                //features(maven().groupId("org.apache.activemq").artifactId("activemq-karaf").type("xml").classifier("features").versionAsInProject(), "activemq-blueprint", "activemq-camel"),
+                //features(maven().groupId("org.apache.camel.karaf").artifactId("apache-camel").type("xml").classifier("features").versionAsInProject(), "camel-blueprint", "camel-jms","camel-jpa", "camel-mvel", "camel-jdbc", "camel-cxf", "camel-test"),
+
                 //load all necessary bundles
                 mavenBundle("com.github.pires.example", "datasource-hsqldb", "0.1-SNAPSHOT"),
                 mavenBundle("com.github.pires.example", "dal", "0.1-SNAPSHOT"),
                 mavenBundle("com.github.pires.example", "dal-impl", "0.1-SNAPSHOT"),
                 //mavenBundle("com.github.pires.example", "rest", "0.1-SNAPSHOT")
+                //mavenBundle().groupId("com.h2database").artifactId("h2").version("1.3.167"),
+                //mavenBundle().groupId("de.nierbeck.camel.exam.demo").artifactId("entities").versionAsInProject(),
+                //mavenBundle().groupId("org.ops4j.pax.tipi").artifactId("org.ops4j.pax.tipi.hamcrest.core").versionAsInProject(),
 
                 // Remember that the test executes in another process.  If you want to debug it, you need
                 // to tell Pax Exam to launch that process with debugging enabled.  Launching the test class itself with
@@ -91,6 +105,17 @@ public class UserManagerIntegrationTest
 
         final UserService service = getOsgiService(UserService.class);
         assertNotNull(service);
+
+        User user = new User();
+        user.setName("alberto");
+
+
+        service.create(user);
+
+        List<User> result = service.findAll();
+
+        assertThat(result.size(), is(1));
+
 
 
 
