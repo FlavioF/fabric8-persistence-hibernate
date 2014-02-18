@@ -14,7 +14,6 @@
 
 -->
 <features>
-    <repository>mvn:org.apache.cxf.karaf/apache-cxf/${dependency.cxf.version}/xml/features</repository>
     <feature
     name="persistence-aries-hibernate"
     version="${version}">
