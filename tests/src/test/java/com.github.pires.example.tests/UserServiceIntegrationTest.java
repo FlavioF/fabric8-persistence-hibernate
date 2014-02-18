@@ -3,10 +3,10 @@ package com.github.pires.example.tests;
 import com.github.pires.example.dal.UserService;
 import com.github.pires.example.dal.entities.User;
 import io.fabric8.api.Container;
-import io.fabric8.api.ServiceLocator;
 import io.fabric8.itests.paxexam.support.ContainerBuilder;
 import io.fabric8.itests.paxexam.support.FabricTestSupport;
-import io.fabric8.itests.paxexam.support.Provision;
+import org.apache.felix.service.command.Function;
+import org.fusesource.tooling.testing.pax.exam.karaf.ServiceLocator;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -16,17 +16,18 @@ import org.ops4j.pax.exam.junit.Configuration;
 import org.ops4j.pax.exam.junit.ExamReactorStrategy;
 import org.ops4j.pax.exam.junit.JUnit4TestRunner;
 import org.ops4j.pax.exam.junit.ProbeBuilder;
-import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
+import org.ops4j.pax.exam.spi.reactors.EagerSingleStagedReactorFactory;
 import org.osgi.framework.Constants;
 
 import java.util.Set;
 
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.ops4j.pax.exam.OptionUtils.combine;
 
 
 @RunWith(JUnit4TestRunner.class)
-@ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
+@ExamReactorStrategy(EagerSingleStagedReactorFactory.class)
 public class UserServiceIntegrationTest extends FabricTestSupport
 {
 
@@ -59,13 +60,13 @@ public class UserServiceIntegrationTest extends FabricTestSupport
         System.err.println(executeCommand("features:addUrl mvn:com.github.pires.example/feature-persistence/0.1-SNAPSHOT/xml/features", 10000, false));
         System.err.println(executeCommand("features:install swagger", 600000, false));
         System.err.println(executeCommand("features:install fabric-cxf", 600000, false));
+
         System.err.println(executeCommand("features:install persistence-aries-hibernate", 600000, false));
 
         System.err.println(executeCommand("osgi:install -s mvn:com.github.pires.example/datasource-hsqldb/0.1-SNAPSHOT"));
         System.err.println(executeCommand("osgi:install -s mvn:com.github.pires.example/dal/0.1-SNAPSHOT"));
         System.err.println(executeCommand("osgi:install -s mvn:com.github.pires.example/dal-impl/0.1-SNAPSHOT"));
         System.err.println(executeCommand("osgi:install -s mvn:com.github.pires.example/rest/0.1-SNAPSHOT"));
-
 
 //        System.err.println(executeCommand("fabric:profile-create --parents example-quickstarts-rest persistence-example"));
 //        System.err.println(executeCommand("fabric:profile-edit --repositories mvn:com.github.pires.example/feature-persistence/0.1-SNAPSHOT/xml/features persistence-example"));
@@ -149,41 +150,40 @@ public class UserServiceIntegrationTest extends FabricTestSupport
     }
 
     @Test
+    public void shouldCreateAndFindUser_REST() throws Exception
+    {
+        Set<Container> containers = ContainerBuilder.create().withName("cnt1").withProfiles("default").assertProvisioningResult().build();
+        try
+        {
+            assertTrue("We should have one container.", containers.size() == 1);
+            System.err.println("created the cxf-server container.");
+            // install bundle of CXF
+            Thread.sleep(2000);
+            System.err.println(executeCommand("fabric:cluster-list"));
+            // install bundle of CXF
+            Thread.sleep(2000);
+            // calling the client here
+
+            UserService proxy = ServiceLocator.getOsgiService(UserService.class);
+
+            assertNotNull(proxy);
+
+            User user = new User();
+            user.setName("alberto");
+            proxy.create(user);
+
+            //assertNotSame("We should get the two different result", result1, result2);
+        }
+        finally
+        {
+            ContainerBuilder.destroy(containers);
+        }
+    }
+
+    //    @Test
     public void shouldCreateAndFindUser_DAL() throws Exception
     {
-//        for (Bundle b : bundleContext.getBundles())
-//        {
-//            System.out.println("Bundle: " + b.getSymbolicName() + "; ID: " + b.getBundleId() + "; State: " + b.getState());
-//        }
-//
-//        //restart hibernate bundle
-//        Bundle hibernateService = getInstalledBundle("org.hibernate.osgi");
-//        Bundle airesService = getInstalledBundle("org.apache.aries.jpa.container");
-//
-//        /*executeCommand("osgi:restart " + airesService.getBundleId());
-//        Thread.sleep(1000);*/
-//
-//        executeCommand("osgi:restart " + hibernateService.getBundleId());
-//        Thread.sleep(1000);
-//
-//
-//        System.out.println("--------------> moving on");
-
-
-        //is  service available ?
-//        final UserService service = ServiceLocator.getOsgiService(UserService.class);
-//        assertNotNull(service);
-//
-//        User user = new User();
-//        user.setName("alberto");
-//
-//        service.create(user);
-//
-//        List<User> result = service.findAll();
-//
-//        Assert.assertThat(result.size(), Matchers.is(1));
-
-        assertTrue(Provision.profileAvailable("persistence-example", "1.0", DEFAULT_TIMEOUT));
+        /*assertTrue(Provision.profileAvailable("persistence-example", "1.0", DEFAULT_TIMEOUT));
         Set<Container> containers = ContainerBuilder.create().withName("cnt1").withProfiles("default").assertProvisioningResult().build();
         try
         {
@@ -208,44 +208,8 @@ public class UserServiceIntegrationTest extends FabricTestSupport
         finally
         {
             ContainerBuilder.destroy();
-        }
+        }*/
     }
-
-    /*@Test
-    public void shouldCreateAndFindUser_REST() throws Exception
-    {
-        client.setConnectorType(HttpClient.CONNECTOR_SELECT_CHANNEL);
-        try
-
-
-
-        //is  service available ?
-        final UserManager service = getOsgiService(UserManager.class);
-        assertNotNull(service);
-
-
-
-        String content = "content";
-        HttpClient client = new HttpClient();
-        String url = "http://localhost:8080/cxf/demo/user";
-        EntityEnclosingMethod method = new PutMethod(url);
-        InputStream inputSteam = new ByteArrayInputStream(content.toString().getBytes());
-        method.setRequestEntity(new InputStreamRequestEntity(inputSteam, content.length()));
-        try
-        {
-            int statusCode = client.executeMethod(method);
-            assertEquals(201, statusCode);
-        }
-        catch (Exception e)
-        {
-            e.printStackTrace();
-            fail(e.getMessage());
-        }
-        finally
-        {
-            method.releaseConnection();
-        }
-    }*/
 
 
 }
