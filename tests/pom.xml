@@ -222,7 +222,7 @@
         <dependency.cxf.version>2.6.3</dependency.cxf.version>
         <dependency.hamcrest.version>1.3.0.1</dependency.hamcrest.version>
         <!--<dependency.fabric.version>1.0.0.redhat-344</dependency.fabric.version>-->
-        <dependency.fabric.version>1.0.0.redhat-344</dependency.fabric.version>
+        <dependency.fabric.version>1.0.0.redhat-340</dependency.fabric.version>
 
         <!--<servicemix.version>4.5.2</servicemix.version>-->
         <!--<slf4j.version>1.4.3</slf4j.version>-->
