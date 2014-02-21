@@ -1,18 +1,12 @@
 package com.github.pires.example.tests;
 
-import com.github.pires.example.dal.UserService;
-import com.github.pires.example.dal.entities.User;
 import io.fabric8.api.Container;
 import io.fabric8.itests.paxexam.support.ContainerBuilder;
 import io.fabric8.itests.paxexam.support.FabricTestSupport;
-import io.fabric8.itests.paxexam.support.SshContainerBuilder;
-import org.apache.karaf.tooling.exam.options.DoNotModifyLogOption;
-import org.fusesource.tooling.testing.pax.exam.karaf.ServiceLocator;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.ops4j.pax.exam.MavenUtils;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.TestProbeBuilder;
 import org.ops4j.pax.exam.junit.Configuration;
@@ -23,13 +17,9 @@ import org.ops4j.pax.exam.spi.reactors.EagerSingleStagedReactorFactory;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.Constants;
 
-import java.io.File;
 import java.util.Set;
 
-import static org.apache.karaf.tooling.exam.options.KarafDistributionOption.*;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-import static org.ops4j.pax.exam.CoreOptions.maven;
 import static org.ops4j.pax.exam.OptionUtils.combine;
 
 
@@ -54,40 +44,10 @@ public class UserServiceIntegrationTest extends FabricTestSupport
         return probe;
     }
 
-    @Before
-    public void setUp() throws Exception
-    {
-        System.err.println(executeCommand("fabric:create -n"));
-
-
-        //System.err.println(executeCommand("fabric:create --clean --wait-for-provisioning"));
-
-        waitForFabricCommands();
-
-        System.err.println(executeCommand("features:addUrl mvn:com.github.pires.example/feature-persistence/0.1-SNAPSHOT/xml/features", 10000, false));
-        //System.err.println(executeCommand("features:install fabric-cxf/1.0.0.redhat-340", 600000, false));
-
-        System.err.println(executeCommand("features:install persistence-aries-hibernate", 600000, false));
-
-
-        System.err.println(executeCommand("osgi:install -s mvn:com.github.pires.example/datasource-hsqldb/0.1-SNAPSHOT"));
-        System.err.println(executeCommand("osgi:install -s mvn:com.github.pires.example/dal/0.1-SNAPSHOT"));
-        System.err.println(executeCommand("osgi:install -s mvn:com.github.pires.example/dal-impl/0.1-SNAPSHOT"));
-        //System.err.println(executeCommand("osgi:install -s mvn:com.github.pires.example/rest/0.1-SNAPSHOT"));
-
-        System.err.println("setUp all done");
-    }
-
-    @After
-    public void tearDown() throws InterruptedException
-    {
-        //ContainerBuilder.destroy();
-    }
-
     @Configuration
     public Option[] config()
     {
-       return combine(
+        return combine(
                 /*new Option[]{
                         karafDistributionConfiguration().frameworkUrl(
                                 maven().groupId(GROUP_ID).artifactId(ARTIFACT_ID).version("1.0.0.redhat-346").type("zip")
@@ -109,14 +69,51 @@ public class UserServiceIntegrationTest extends FabricTestSupport
                         new DoNotModifyLogOption(),
                         keepRuntimeFolder()
                 }*/
-               fabricDistributionConfiguration()
+                fabricDistributionConfiguration()
         );
     }
 
-    @Test
+    @Before
+    public void setUp() throws Exception
+    {
+        System.err.println(executeCommand("fabric:create -n"));
+
+
+        //System.err.println(executeCommand("fabric:create --clean --wait-for-provisioning"));
+
+        waitForFabricCommands();
+
+        System.err.println(executeCommand("features:addUrl mvn:com.github.pires.example/feature-persistence/0.1-SNAPSHOT/xml/features", 10000, false));
+//        System.err.println(executeCommand("features:addUrl mvn:org.jboss.quickstarts.fuse/rest/6.1.0.redhat-SNAPSHOT/xml/features", 10000, false));
+//        System.err.println(executeCommand("features:addUrl mvn:org.apache.cxf.karaf/apache-cxf/2.6.6/xml/features", 10000, false));
+
+        System.err.println(executeCommand("features:install persistence-aries-hibernate", 300000, false));
+        System.err.println("persistence-aries-hibernate done");
+
+//        System.err.println(executeCommand("features:install persistence-rest", 300000, false));
+//        System.err.println("persistence-rest done");
+
+
+        System.err.println(executeCommand("osgi:install -s mvn:com.github.pires.example/datasource-hsqldb/0.1-SNAPSHOT"));
+        System.err.println(executeCommand("osgi:install -s mvn:com.github.pires.example/dal/0.1-SNAPSHOT"));
+        System.err.println(executeCommand("osgi:install -s mvn:com.github.pires.example/dal-impl/0.1-SNAPSHOT"));
+        System.err.println(executeCommand("osgi:install -s mvn:com.github.pires.example/rest/0.1-SNAPSHOT"));
+        //System.err.println(executeCommand("osgi:install -s mvn:org.jboss.quickstarts.fuse/rest/6.1.0.redhat-SNAPSHOT"));
+
+
+        System.err.println("setUp all done");
+    }
+
+    @After
+    public void tearDown() throws InterruptedException
+    {
+        //ContainerBuilder.destroy();
+    }
+
+    //@Test
     public void shouldCreateUserWith_UserService() throws Exception
     {
-        Set<Container> containers = ContainerBuilder.create().withName("cnt1").withProfiles("karaf").assertProvisioningResult().build();
+        /*Set<Container> containers = ContainerBuilder.create().withName("cnt1").withProfiles("karaf").assertProvisioningResult().build();
 
         Thread.sleep(2000);
         Bundle b = getInstalledBundle("org.hibernate.osgi");
@@ -144,37 +141,39 @@ public class UserServiceIntegrationTest extends FabricTestSupport
         }
 
 
-        //Thread.sleep(600000);
+        //Thread.sleep(600000);*/
     }
 
-    //@Test
+    @Test
     public void shouldCreateUserWith_UserManager() throws Exception
     {
-        Set<Container> containers = ContainerBuilder.create().withName("cnt2").withProfiles("example-quickstarts-rest").assertProvisioningResult().build();
+        Set<Container> containers = ContainerBuilder.create().withName("cnt2").withProfiles("default").assertProvisioningResult().build();
 
-        Thread.sleep(2000);
+//        Thread.sleep(2000);
         Bundle b = getInstalledBundle("org.hibernate.osgi");
         System.err.println(executeCommand("osgi:restart " + b.getBundleId()));
 
         assertTrue("We should have one container.", containers.size() == 1);
-        System.err.println("created the cxf-server container.");
+        System.err.println("created the container.");
 
-        Thread.sleep(2000);
+//        Thread.sleep(2000);
         System.err.println(executeCommand("fabric:cluster-list"));
 
         try
         {
-            Thread.sleep(2000);
-//            UserService proxy = ServiceLocator.getOsgiService(UserService.class);
+            Thread.sleep(6000000);
+//            UserManager proxy = ServiceLocator.awaitService(this.bundleContext, UserManager.class);
 //            assertNotNull(proxy);
 //
 //            User user = new User();
 //            user.setName("alberto");
-//            proxy.create(user);
+//            proxy.createUser(user);
+//
+//            assertThat(proxy.countUsers(), Matchers.is(1));
         }
         finally
         {
-            //ContainerBuilder.destroy();
+            ContainerBuilder.destroy(containers);
         }
     }
 
