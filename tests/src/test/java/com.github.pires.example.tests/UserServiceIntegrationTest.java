@@ -1,12 +1,30 @@
+/**
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
+ */
 package com.github.pires.example.tests;
 
-import io.fabric8.api.Container;
-import io.fabric8.itests.paxexam.support.ContainerBuilder;
+import com.github.pires.example.dal.UserService;
+import com.github.pires.example.dal.entities.User;
+import io.fabric8.api.ServiceLocator;
 import io.fabric8.itests.paxexam.support.FabricTestSupport;
+import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.methods.PutMethod;
+import org.apache.commons.httpclient.methods.RequestEntity;
+import org.apache.commons.httpclient.methods.StringRequestEntity;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.ops4j.pax.exam.CoreOptions;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.TestProbeBuilder;
 import org.ops4j.pax.exam.junit.Configuration;
@@ -14,11 +32,13 @@ import org.ops4j.pax.exam.junit.ExamReactorStrategy;
 import org.ops4j.pax.exam.junit.JUnit4TestRunner;
 import org.ops4j.pax.exam.junit.ProbeBuilder;
 import org.ops4j.pax.exam.spi.reactors.EagerSingleStagedReactorFactory;
-import org.osgi.framework.Bundle;
 import org.osgi.framework.Constants;
 
-import java.util.Set;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+import java.net.URL;
 
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.ops4j.pax.exam.OptionUtils.combine;
 
@@ -28,6 +48,8 @@ import static org.ops4j.pax.exam.OptionUtils.combine;
 public class UserServiceIntegrationTest extends FabricTestSupport
 {
 
+    public static final String USER_MANAGER_URL = "http://localhost:8181/cxf/demo/user";
+
     /**
      * @param probe
      * @return
@@ -35,11 +57,7 @@ public class UserServiceIntegrationTest extends FabricTestSupport
     @ProbeBuilder
     public TestProbeBuilder probeConfiguration(TestProbeBuilder probe)
     {
-        // makes sure the generated CustomTest-Bundle contains this import!
-        //probe.setHeader(Constants.BUNDLE_SYMBOLICNAME, "de.nierbeck.camel.exam.demo.route-control-test");
         probe.setHeader(Constants.DYNAMICIMPORT_PACKAGE, "com.github.pires.example.tests,*,org.apache.felix.service.*;status=provisional");
-        //probe.setHeader(Constants.IMPORT_PACKAGE, "io.fabric8.demo.cxf,org.fusesource.tooling.testing.pax.exam.karaf,*");
-        probe.setHeader(Constants.IMPORT_PACKAGE, "org.fusesource.tooling.testing.pax.exam.karaf,*");
         probe.setHeader(Constants.BUNDLE_SYMBOLICNAME, "com.github.pires.example.tests");
         return probe;
     }
@@ -48,57 +66,30 @@ public class UserServiceIntegrationTest extends FabricTestSupport
     public Option[] config()
     {
         return combine(
-                /*new Option[]{
-                        karafDistributionConfiguration().frameworkUrl(
-                                maven().groupId(GROUP_ID).artifactId(ARTIFACT_ID).version("1.0.0.redhat-346").type("zip")
-                        )
-                                .karafVersion(getKarafVersion()).name("Fabric Karaf Distro").unpackDirectory(new File("target/paxexam/unpack/")),
-                        useOwnExamBundlesStartLevel(50),
-                        envAsSystemProperty(ContainerBuilder.CONTAINER_TYPE_PROPERTY, "child"),
-                        envAsSystemProperty(ContainerBuilder.CONTAINER_NUMBER_PROPERTY, "1"),
-                        envAsSystemProperty(SshContainerBuilder.SSH_HOSTS_PROPERTY),
-                        envAsSystemProperty(SshContainerBuilder.SSH_USERS_PROPERTY),
-                        envAsSystemProperty(SshContainerBuilder.SSH_PASSWORD_PROPERTY),
-                        envAsSystemProperty(SshContainerBuilder.SSH_RESOLVER_PROPERTY),
-
-                        editConfigurationFilePut("etc/config.properties", "karaf.startlevel.bundle", "50"),
-                        editConfigurationFilePut("etc/config.properties", "karaf.startup.message", "Loading Fabric from: ${karaf.home}"),
-                        editConfigurationFilePut("etc/users.properties", "admin", "admin,admin"),
-                        mavenBundle("io.fabric8.itests", "fabric-itests-common", MavenUtils.getArtifactVersion("io.fabric8.itests", "fabric-itests-common")),
-                        mavenBundle("org.fusesource.tooling.testing", "pax-exam-karaf", MavenUtils.getArtifactVersion("org.fusesource.tooling.testing", "pax-exam-karaf")),
-                        new DoNotModifyLogOption(),
-                        keepRuntimeFolder()
-                }*/
-                fabricDistributionConfiguration()
+                fabricDistributionConfiguration(),
+                CoreOptions.wrappedBundle(CoreOptions.mavenBundle().groupId("commons-httpclient").artifactId("commons-httpclient"))
         );
     }
 
     @Before
     public void setUp() throws Exception
     {
-        System.err.println(executeCommand("fabric:create -n"));
-
-
-        //System.err.println(executeCommand("fabric:create --clean --wait-for-provisioning"));
+        System.err.println(executeCommand("fabric:create -n root"));
 
         waitForFabricCommands();
 
         System.err.println(executeCommand("features:addUrl mvn:com.github.pires.example/feature-persistence/0.1-SNAPSHOT/xml/features", 10000, false));
-//        System.err.println(executeCommand("features:addUrl mvn:org.jboss.quickstarts.fuse/rest/6.1.0.redhat-SNAPSHOT/xml/features", 10000, false));
-//        System.err.println(executeCommand("features:addUrl mvn:org.apache.cxf.karaf/apache-cxf/2.6.6/xml/features", 10000, false));
 
         System.err.println(executeCommand("features:install persistence-aries-hibernate", 300000, false));
         System.err.println("persistence-aries-hibernate done");
 
-//        System.err.println(executeCommand("features:install persistence-rest", 300000, false));
-//        System.err.println("persistence-rest done");
-
+        System.err.println(executeCommand("features:install persistence-rest", 300000, false));
+        System.err.println("persistence-rest done");
 
         System.err.println(executeCommand("osgi:install -s mvn:com.github.pires.example/datasource-hsqldb/0.1-SNAPSHOT"));
         System.err.println(executeCommand("osgi:install -s mvn:com.github.pires.example/dal/0.1-SNAPSHOT"));
         System.err.println(executeCommand("osgi:install -s mvn:com.github.pires.example/dal-impl/0.1-SNAPSHOT"));
         System.err.println(executeCommand("osgi:install -s mvn:com.github.pires.example/rest/0.1-SNAPSHOT"));
-        //System.err.println(executeCommand("osgi:install -s mvn:org.jboss.quickstarts.fuse/rest/6.1.0.redhat-SNAPSHOT"));
 
 
         System.err.println("setUp all done");
@@ -107,75 +98,74 @@ public class UserServiceIntegrationTest extends FabricTestSupport
     @After
     public void tearDown() throws InterruptedException
     {
-        //ContainerBuilder.destroy();
-    }
-
-    //@Test
-    public void shouldCreateUserWith_UserService() throws Exception
-    {
-        /*Set<Container> containers = ContainerBuilder.create().withName("cnt1").withProfiles("karaf").assertProvisioningResult().build();
-
-        Thread.sleep(2000);
-        Bundle b = getInstalledBundle("org.hibernate.osgi");
-        System.err.println(executeCommand("osgi:restart " + b.getBundleId()));
-
-        assertTrue("We should have one container.", containers.size() == 1);
-        System.err.println("created the cxf-server container.");
-
-        Thread.sleep(2000);
-        System.err.println(executeCommand("fabric:cluster-list"));
-
-        try
-        {
-            Thread.sleep(2000);
-            UserService proxy = ServiceLocator.getOsgiService(UserService.class);
-            assertNotNull(proxy);
-
-            User user = new User();
-            user.setName("alberto");
-            proxy.create(user);
-        }
-        finally
-        {
-            //ContainerBuilder.destroy();
-        }
-
-
-        //Thread.sleep(600000);*/
     }
 
     @Test
-    public void shouldCreateUserWith_UserManager() throws Exception
+    public void shouldCreateAndRetriveUserWithDAL() throws Exception
     {
-        Set<Container> containers = ContainerBuilder.create().withName("cnt2").withProfiles("default").assertProvisioningResult().build();
+        UserService proxy = ServiceLocator.awaitService(this.bundleContext, UserService.class);
+        assertNotNull(proxy);
 
-//        Thread.sleep(2000);
-        Bundle b = getInstalledBundle("org.hibernate.osgi");
-        System.err.println(executeCommand("osgi:restart " + b.getBundleId()));
+        User user = new User();
+        user.setName("alberto");
+        proxy.create(user);
+        assertTrue(proxy.findAll().size() == 1);
+    }
 
-        assertTrue("We should have one container.", containers.size() == 1);
-        System.err.println("created the container.");
+    @Test
+    public void shouldCreateAndRetriveUserWithREST() throws Exception
+    {
 
-//        Thread.sleep(2000);
-        System.err.println(executeCommand("fabric:cluster-list"));
+        //create user
+        PutMethod put = new PutMethod(USER_MANAGER_URL);
+        put.addRequestHeader("Accept", "application/json");
+        RequestEntity entity = new StringRequestEntity("{ \"name\": \"manel joao\" }", "application/json", "UTF-8");
+        put.setRequestEntity(entity);
 
+        HttpClient httpclient = new HttpClient();
+        int result = 0;
         try
         {
-            Thread.sleep(6000000);
-//            UserManager proxy = ServiceLocator.awaitService(this.bundleContext, UserManager.class);
-//            assertNotNull(proxy);
-//
-//            User user = new User();
-//            user.setName("alberto");
-//            proxy.createUser(user);
-//
-//            assertThat(proxy.countUsers(), Matchers.is(1));
+            result = httpclient.executeMethod(put);
+            assertTrue(result == 204);
+        }
+        catch (Exception e)
+        {
+            org.junit.Assert.fail("Unable to create user");
         }
         finally
         {
-            ContainerBuilder.destroy(containers);
+            put.releaseConnection();
         }
+
+        //get user
+        URL url = new URL(USER_MANAGER_URL);
+        InputStream in = null;
+        try
+        {
+            in = url.openStream();
+        }
+        catch (Exception e)
+        {
+            org.junit.Assert.fail("Connection error");
+        }
+
+        String res = getStringFromInputStream(in);
+        System.err.println(res);
+
+        assertTrue(res.contains("{\"name\":\"manel joao\"}"));
     }
 
-
+    private static String getStringFromInputStream(InputStream in) throws Exception
+    {
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        int c = 0;
+        while ((c = in.read()) != -1)
+        {
+            bos.write(c);
+        }
+        in.close();
+        bos.close();
+        return bos.toString();
+    }
 }
