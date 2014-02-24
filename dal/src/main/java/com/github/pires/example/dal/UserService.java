@@ -12,9 +12,9 @@
  */
 package com.github.pires.example.dal;
 
-import java.util.List;
-
 import com.github.pires.example.dal.entities.User;
+
+import java.util.List;
 
 public interface UserService {
 
