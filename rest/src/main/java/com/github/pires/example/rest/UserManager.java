@@ -32,6 +32,7 @@ public class UserManager {
   @Produces(MediaType.APPLICATION_JSON)
   public List<User> listUsers() {
     log.info("Listing users...");
+    
     return userService.findAll();
   }
 

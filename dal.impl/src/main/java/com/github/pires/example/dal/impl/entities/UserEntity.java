@@ -12,7 +12,14 @@
  */
 package com.github.pires.example.dal.impl.entities;
 
-import javax.persistence.*;
+
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Version;
+
+import com.github.pires.example.dal.entities.JSON;
 
 @Entity
 public class UserEntity {
@@ -22,10 +29,11 @@ public class UserEntity {
   private Long id;
   @Version
   private Long version;
-
   private String name;
+  private JSON properties;
 
   public UserEntity() {
+    this.properties = new JSON();
   }
 
   public Long getId() {
@@ -44,4 +52,26 @@ public class UserEntity {
     this.name = name;
   }
 
+  /**
+   * @return the properties
+   */
+  public JSON getProperties() {
+    return properties;
+  }
+
+  /**
+   * @param properties the properties to set
+   */
+  public void setProperties(JSON properties) {
+    this.properties = properties;
+  }
+
+  @Override
+  public String toString() {
+    return "Person{"
+            + "id=" + id
+            + ", name='" + name + '\''
+            + ", properties=" + properties.getValue().toString()
+            + '}';
+  }
 }

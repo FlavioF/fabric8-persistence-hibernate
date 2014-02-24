@@ -24,6 +24,8 @@ import com.github.pires.example.dal.UserService;
 import com.github.pires.example.dal.entities.User;
 import com.github.pires.example.dal.impl.daos.UserEntityDao;
 import com.github.pires.example.dal.impl.entities.UserEntity;
+import com.github.pires.example.dal.entities.JSON;
+import com.github.pires.example.dal.entities.RestJSON;
 
 /**
  * Implementation of {@link UserService} OSGi service.
@@ -31,8 +33,18 @@ import com.github.pires.example.dal.impl.entities.UserEntity;
 public class UserServiceImpl implements UserService {
 
   private static final Logger log = LoggerFactory.getLogger(UserService.class);
-
   private UserEntityDao userDao;
+  private final String PROPERTIES_SCHEMA = 
+            "{"
+            + "\"num1\":{"
+            + "\"type\":number, "
+            + "\"value\":0, "
+            + "\"mandatory\":false}, "
+            + "\"string1\":{"
+            + "\"type\":string, "
+            + "\"value\":\"teste\", "
+            + "\"mandatory\":false}"
+            + "}";
 
   public UserServiceImpl() {
   }
@@ -42,8 +54,10 @@ public class UserServiceImpl implements UserService {
     if (user != null) {
       UserEntity newEntity = new UserEntity();
       newEntity.setName(user.getName());
+      newEntity.setProperties(new JSON(PROPERTIES_SCHEMA,user.getProperties().getValue()));
       userDao.persist(newEntity);
     }
+
   }
 
   public List<User> findAll() {
@@ -51,13 +65,15 @@ public class UserServiceImpl implements UserService {
     final int totalUsers = userDao.count();
     if (totalUsers > 0) {
       List<UserEntity> entities = userDao.findAll();
-      List<User> users = new ArrayList<>(entities.size());
+      List<User> users = new ArrayList<User>(entities.size());
       for (UserEntity entity : entities) {
-        log.info("Found user with name {}", entity.getName());
+        log.info("Found user {} ", entity.toString());
         User user = new User();
         user.setName(entity.getName());
+        user.setProperties(new RestJSON(entity.getProperties()));
         users.add(user);
       }
+      log.info("Found {} users", users.size());
       return users;
     }
     return Collections.emptyList();
@@ -87,5 +103,4 @@ public class UserServiceImpl implements UserService {
   void deactivate() {
     log.info("Deactivating Billing service.");
   }
-
 }

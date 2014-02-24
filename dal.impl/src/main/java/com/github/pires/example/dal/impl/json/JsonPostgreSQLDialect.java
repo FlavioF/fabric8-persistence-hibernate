@@ -10,36 +10,20 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package com.github.pires.example.dal.entities;
+package com.github.pires.example.dal.impl.json;
 
-public class User {
+import org.hibernate.dialect.PostgreSQL82Dialect;
+import java.sql.Types;
 
-  private String name;
-  private RestJSON properties;
+/**
+ * Created by amarcos on 2/19/14.
+ */
+public class JsonPostgreSQLDialect extends PostgreSQL82Dialect {
 
-  public User() {
-  }
+    public JsonPostgreSQLDialect() {
 
-  public String getName() {
-    return name;
-  }
+        super();
 
-  public void setName(String name) {
-    this.name = name;
-  }
-
- 
-  /**
-   * @return the properties
-   */
-  public RestJSON getProperties() {
-    return properties;
-  }
-
-  /**
-   * @param properties the properties to set
-   */
-  public void setProperties(RestJSON properties) {
-    this.properties = properties;
-  }
+        this.registerColumnType(Types.JAVA_OBJECT, "json");
+    }
 }
