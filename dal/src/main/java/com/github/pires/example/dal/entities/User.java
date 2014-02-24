@@ -12,34 +12,40 @@
  */
 package com.github.pires.example.dal.entities;
 
-public class User {
+public class User
+{
 
-  private String name;
-  private RestJSON properties;
+    private String name;
+    private JSON properties;
 
-  public User() {
-  }
+    public User()
+    {
+    }
 
-  public String getName() {
-    return name;
-  }
+    public String getName()
+    {
+        return name;
+    }
 
-  public void setName(String name) {
-    this.name = name;
-  }
+    public void setName(String name)
+    {
+        this.name = name;
+    }
 
- 
-  /**
-   * @return the properties
-   */
-  public RestJSON getProperties() {
-    return properties;
-  }
 
-  /**
-   * @param properties the properties to set
-   */
-  public void setProperties(RestJSON properties) {
-    this.properties = properties;
-  }
+    /**
+     * @return the properties
+     */
+    public JSON getProperties()
+    {
+        return properties;
+    }
+
+    /**
+     * @param properties the properties to set
+     */
+    public void setProperties(JSON properties)
+    {
+        this.properties = properties;
+    }
 }

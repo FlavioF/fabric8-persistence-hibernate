@@ -13,8 +13,11 @@
 package com.github.pires.example.tests;
 
 import com.github.pires.example.dal.UserService;
+import com.github.pires.example.dal.entities.JSON;
 import com.github.pires.example.dal.entities.User;
+import io.fabric8.api.Container;
 import io.fabric8.api.ServiceLocator;
+import io.fabric8.itests.paxexam.support.ContainerBuilder;
 import io.fabric8.itests.paxexam.support.FabricTestSupport;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.methods.PutMethod;
@@ -37,6 +40,7 @@ import org.osgi.framework.Constants;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.Set;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -86,7 +90,8 @@ public class UserServiceIntegrationTest extends FabricTestSupport
         System.err.println(executeCommand("features:install persistence-rest", 300000, false));
         System.err.println("persistence-rest done");
 
-        System.err.println(executeCommand("osgi:install -s mvn:com.github.pires.example/datasource-hsqldb/0.1-SNAPSHOT"));
+        //System.err.println(executeCommand("osgi:install -s mvn:com.github.pires.example/datasource-hsqldb/0.1-SNAPSHOT"));
+        System.err.println(executeCommand("osgi:install -s mvn:com.github.pires.example/datasource-postgresdb/0.1-SNAPSHOT"));
         System.err.println(executeCommand("osgi:install -s mvn:com.github.pires.example/dal/0.1-SNAPSHOT"));
         System.err.println(executeCommand("osgi:install -s mvn:com.github.pires.example/dal-impl/0.1-SNAPSHOT"));
         System.err.println(executeCommand("osgi:install -s mvn:com.github.pires.example/rest/0.1-SNAPSHOT"));
@@ -98,28 +103,57 @@ public class UserServiceIntegrationTest extends FabricTestSupport
     @After
     public void tearDown() throws InterruptedException
     {
+        Thread.sleep(5000);
     }
 
     @Test
     public void shouldCreateAndRetriveUserWithDAL() throws Exception
     {
-        UserService proxy = ServiceLocator.awaitService(this.bundleContext, UserService.class);
-        assertNotNull(proxy);
 
-        User user = new User();
-        user.setName("alberto");
-        proxy.create(user);
-        assertTrue(proxy.findAll().size() == 1);
+        Set<Container> containers = null;
+        try
+        {
+            containers = ContainerBuilder.create().withName("cnt2").withProfiles("default").assertProvisioningResult().build();
+
+            UserService proxy = ServiceLocator.awaitService(this.bundleContext, UserService.class);
+            assertNotNull(proxy);
+
+            User user = new User();
+            user.setName("alberto");
+            final String properties =
+                    "{"
+                            + "\"num1\":{"
+                            + "\"type\":\"number\", "
+                            + "\"value\":1, "
+                            + "\"mandatory\":false}, "
+                            + "\"string1\":{"
+                            + "\"type\":\"string\", "
+                            + "\"value\":\"teste\", "
+                            + "\"mandatory\":false}"
+                            + "}";
+
+            user.setProperties(new JSON(properties));
+            proxy.create(user);
+            assertTrue(proxy.findAll().size() == 1);
+        }
+        catch (Exception e)
+        {
+            System.err.println(e.getMessage());
+        }
+        finally
+        {
+            ContainerBuilder.destroy(containers);
+        }
     }
 
-    @Test
+    //@Test
     public void shouldCreateAndRetriveUserWithREST() throws Exception
     {
 
         //create user
         PutMethod put = new PutMethod(USER_MANAGER_URL);
         put.addRequestHeader("Accept", "application/json");
-        RequestEntity entity = new StringRequestEntity("{ \"name\": \"manel joao\" }", "application/json", "UTF-8");
+        RequestEntity entity = new StringRequestEntity("{ \"name\": \"manel joao\", \"properties\": \"{\"value\":\"{\"string1\":{\"mandatory\":false,\"value\":\"teste\",\"type\":\"string\"},\"num1\":{\"mandatory\":false,\"value\":123,\"type\":\"number\"}}\"}\" }", "application/json", "UTF-8");
         put.setRequestEntity(entity);
 
         HttpClient httpclient = new HttpClient();

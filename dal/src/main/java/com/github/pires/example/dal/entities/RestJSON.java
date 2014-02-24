@@ -17,35 +17,39 @@
 package com.github.pires.example.dal.entities;
 
 /**
- *
  * @author fferreira
  */
-public class RestJSON {
+public class RestJSON
+{
 
-  //region members
-  private String value;
+    //region members
+    private String value;
 
-  /**
-   * @return the value
-   */
-  public String getValue() {
-    return value;
-  }
+    /**
+     * @return the value
+     */
+    public String getValue()
+    {
+        return value;
+    }
 
-  /**
-   * @param value the value to set
-   */
-  public void setValue(String value) {
-    this.value = value;
-  }
+    /**
+     * @param value the value to set
+     */
+    public void setValue(String value)
+    {
+        this.value = value;
+    }
 
-  public RestJSON(JSON j) {
-    value = j.getValue().toString();
-  }
+    public RestJSON(JSON j)
+    {
+        value = j.getValue().toString();
+    }
 
-  public RestJSON(String value) {
-    this.value = value;
-  }
-  
-  
+    public RestJSON(String value)
+    {
+        this.value = value;
+    }
+
+
 }

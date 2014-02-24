@@ -10,8 +10,7 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-@org.hibernate.annotations.TypeDefs({
-  @org.hibernate.annotations.TypeDef(name = "JSON", defaultForType =  com.github.pires.example.dal.entities.JSON.class, typeClass = com.github.pires.example.dal.impl.json.JSONUserType.class)})
+@org.hibernate.annotations.TypeDefs({@org.hibernate.annotations.TypeDef(name = "JSON", defaultForType =  com.github.pires.example.dal.entities.JSON.class, typeClass = com.github.pires.example.dal.impl.json.JSONUserType.class)})
 package com.github.pires.example.dal.impl.entities;
 
 
