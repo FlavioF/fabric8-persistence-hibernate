@@ -33,7 +33,6 @@ import org.ops4j.pax.exam.junit.ExamReactorStrategy;
 import org.ops4j.pax.exam.junit.JUnit4TestRunner;
 import org.ops4j.pax.exam.junit.ProbeBuilder;
 import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
-import org.ops4j.pax.exam.spi.reactors.EagerSingleStagedReactorFactory;
 import org.osgi.framework.Constants;
 
 import java.io.ByteArrayOutputStream;
@@ -147,7 +146,7 @@ public class UserServiceIntegrationTest extends FabricTestSupport
         }
     }
 
-    //@Test
+    @Test
     public void shouldCreateAndRetriveUserWithREST() throws Exception
     {
         String payload =
