@@ -12,6 +12,7 @@
  */
 package com.github.pires.example.dal.impl.json;
 
+import com.github.pires.example.dal.entities.JSON;
 import org.hibernate.HibernateException;
 import org.hibernate.engine.spi.SessionImplementor;
 import org.hibernate.usertype.UserType;
@@ -21,8 +22,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
-
-import com.github.pires.example.dal.entities.JSON;
 
 /**
  * Created by amarcos on 2/11/14.
@@ -126,7 +125,7 @@ public class JSONUserType implements UserType
             return;
         }
 
-        st.setObject(index, new JSON(value.toString()), Types.OTHER);
+        st.setObject(index, (JSON) value, Types.OTHER);
     }
 
     /**

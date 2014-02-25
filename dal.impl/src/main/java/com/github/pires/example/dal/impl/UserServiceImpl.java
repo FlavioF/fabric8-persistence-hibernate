@@ -63,6 +63,7 @@ public class UserServiceImpl implements UserService
         catch (Exception e)
         {
             log.error(e.getMessage());
+            throw e;
         }
 
     }

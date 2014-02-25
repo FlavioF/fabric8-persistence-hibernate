@@ -65,8 +65,8 @@
     </build>
 
     <properties>
-        <cxf-version>2.7.0.redhat-610348</cxf-version>
-        <fabric.version>1.0.0.redhat-348</fabric.version>
+        <cxf-version>2.7.0.redhat-610352</cxf-version>
+        <fabric.version>1.0.0.redhat-352</fabric.version>
         <cxf-version-range>[2.7,3)</cxf-version-range>
     </properties>
 

@@ -22,41 +22,47 @@ import javax.ws.rs.core.MediaType;
 import java.util.List;
 
 @Path("/user")
-public class UserManager {
+public class UserManager
+{
 
-  private UserService userService;
+    private UserService userService;
 
-  private static final Logger log = LoggerFactory.getLogger(UserManager.class);
+    private static final Logger log = LoggerFactory.getLogger(UserManager.class);
 
-  @GET
-  @Produces(MediaType.APPLICATION_JSON)
-  public List<User> listUsers() {
-    log.info("Listing users...");
-    
-    return userService.findAll();
-  }
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    public List<User> listUsers()
+    {
+        log.info("Listing users...");
 
-  @GET
-  @Path("/count")
-  @Produces(MediaType.APPLICATION_JSON)
-  public int countUsers() {
-    log.info("Counting users...");
-    return userService.count();
-  }
+        return userService.findAll();
+    }
 
-  @PUT
-  @Consumes(MediaType.APPLICATION_JSON)
-  public void createUser(final User user) {
-    log.info("Creating user with name {}...", user.getName());
-    userService.create(user);
-  }
+    @GET
+    @Path("/count")
+    @Produces(MediaType.APPLICATION_JSON)
+    public int countUsers()
+    {
+        log.info("Counting users...");
+        return userService.count();
+    }
 
-  public UserService getUserService() {
-    return userService;
-  }
+    @PUT
+    @Consumes(MediaType.APPLICATION_JSON)
+    public void createUser(final User user)
+    {
+        log.info("Creating user with name {}...", user.getName());
+        userService.create(user);
+    }
 
-  public void setUserService(UserService userService) {
-    this.userService = userService;
-  }
+    public UserService getUserService()
+    {
+        return userService;
+    }
+
+    public void setUserService(UserService userService)
+    {
+        this.userService = userService;
+    }
 
 }

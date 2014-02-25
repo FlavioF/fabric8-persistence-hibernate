@@ -89,7 +89,7 @@
         <dependency.karaf.version>2.3.3</dependency.karaf.version>
         <dependency.cxf.version>2.6.3</dependency.cxf.version>
         <dependency.hamcrest.version>1.3.0.1</dependency.hamcrest.version>
-        <dependency.fabric.version>1.0.0.redhat-348</dependency.fabric.version>
+        <dependency.fabric.version>1.0.0.redhat-352</dependency.fabric.version>
 
         <osgi.import.pkg>*</osgi.import.pkg>
         <osgi.export.pkg>!*</osgi.export.pkg>

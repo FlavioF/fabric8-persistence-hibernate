@@ -13,13 +13,16 @@
 package com.github.pires.example.dal.entities;
 
 
-
-
-import java.io.Serializable;
+import com.fasterxml.jackson.annotation.JsonUnwrapped;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.github.pires.example.dal.UserService;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-
+import java.io.Serializable;
 
 
 /**
@@ -33,16 +36,16 @@ import org.json.JSONObject;
 public class JSON implements Serializable
 {
     //region members
-    private String value;
+    private static final Logger log = LoggerFactory.getLogger(UserService.class);
+    private JSONObject value;
 
     /**
      * Updates the instance value.<br/>
      * If <code>schema</code> is not provided (null), the schema is not enforced.<br/>
      * If any problem occurs when enforcing the <code>schema</code> on <code>newValue</code>, the instance value defaults to the <code>schema</code>.<br/>
      *
-     *
-     * @param schema        - the validation and default schema
-     * @param newValue      - the new value intended for this instance
+     * @param schema   - the validation and default schema
+     * @param newValue - the new value intended for this instance
      */
     public void setValue(JSONObject schema, JSONObject newValue)
     {
@@ -54,12 +57,12 @@ public class JSON implements Serializable
             }
             catch (JSONException e)
             {
-                this.value = schema.toString();
+                this.value = schema;
             }
         }
         else if (schema == null && newValue != null)
         {
-            this.value = newValue.toString();
+            this.value = newValue;
         }
 
     }
@@ -69,13 +72,12 @@ public class JSON implements Serializable
      * If <code>schema</code> is not provided (null), the schema is not enforced.<br/>
      * If any problem occurs when enforcing the <code>schema</code> on <code>newValue</code>, the instance value defaults to the <code>schema</code>.<br/>
      *
-     *
-     * @param schema        - the validation and default schema
-     * @param newValue      - the new value intended for this instance
+     * @param schema   - the validation and default schema
+     * @param newValue - the new value intended for this instance
      */
     public void setValue(String schema, String newValue)
     {
-        if (schema!=null && !schema.isEmpty() && newValue!=null && !newValue.isEmpty())
+        if (schema != null && !schema.isEmpty() && newValue != null && !newValue.isEmpty())
         {
             try
             {
@@ -85,18 +87,30 @@ public class JSON implements Serializable
             }
             catch (JSONException e)
             {
-                this.value = schema;
+                this.value = new JSONObject(schema);
             }
         }
-        else if ((schema==null || schema.isEmpty()) && newValue!=null && !newValue.isEmpty())
+        else if ((schema == null || schema.isEmpty()) && newValue != null && !newValue.isEmpty())
         {
-            this.value = newValue;
+            this.value = new JSONObject(newValue);
         }
     }
 
+    /**
+     * Updates the instance value with no schema enforcement.<br/>
+     *
+     * @param value - the value intended for this instance
+     */
+    @JsonDeserialize(using = JSONObjectDeserializer.class)
+    public void setValue(JSONObject value)
+    {
+        setValue(null, value);
+    }
+
+    @JsonSerialize(using = JSONObjectSerializer.class)
     public JSONObject getValue() throws JSONException
     {
-        return new JSONObject(this.value);
+        return this.value;
     }
     //endregion
 
@@ -108,7 +122,8 @@ public class JSON implements Serializable
 
     /**
      * Creates a new instance with no schema enforcement.<br/>
-     * @param value      - the value intended for this instance
+     *
+     * @param value - the value intended for this instance
      */
     public JSON(String value)
     {
@@ -117,7 +132,8 @@ public class JSON implements Serializable
 
     /**
      * Creates a new instance with no schema enforcement.<br/>
-     * @param value      - the value intended for this instance
+     *
+     * @param value - the value intended for this instance
      */
     public JSON(JSONObject value)
     {
@@ -130,9 +146,8 @@ public class JSON implements Serializable
      * If <code>schema</code> is not provided (null), the schema is not enforced.<br/>
      * If any problem occurs when enforcing the <code>schema</code> on <code>newValue</code>, the instance value defaults to the <code>schema</code>.<br/>
      *
-     *
-     * @param schema        - the validation and default schema
-     * @param value         - the value intended for this instance
+     * @param schema - the validation and default schema
+     * @param value  - the value intended for this instance
      */
     public JSON(String schema, String value)
     {
@@ -144,9 +159,8 @@ public class JSON implements Serializable
      * If <code>schema</code> is not provided (null), the schema is not enforced.<br/>
      * If any problem occurs when enforcing the <code>schema</code> on <code>newValue</code>, the instance value defaults to the <code>schema</code>.<br/>
      *
-     *
-     * @param schema        - the validation and default schema
-     * @param value         - the value intended for this instance
+     * @param schema - the validation and default schema
+     * @param value  - the value intended for this instance
      */
     public JSON(JSONObject schema, JSONObject value)
     {
@@ -156,15 +170,15 @@ public class JSON implements Serializable
     @Override
     public String toString()
     {
-        return this.value;
+        return this.value.toString();
     }
     //endregion
 
 
     //region internal API
-    private String updateFromSchema(JSONObject schema, JSONObject newValue) throws JSONException
+    private JSONObject updateFromSchema(JSONObject schema, JSONObject newValue) throws JSONException
     {
-        return deepMerge(schema, newValue).toString();
+        return deepMerge(schema, newValue);
     }
 
     private JSONObject deepMerge(JSONObject schemaObject, JSONObject newValueObject) throws JSONException

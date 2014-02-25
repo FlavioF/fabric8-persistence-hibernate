@@ -15,9 +15,7 @@ package com.github.pires.example.tests;
 import com.github.pires.example.dal.UserService;
 import com.github.pires.example.dal.entities.JSON;
 import com.github.pires.example.dal.entities.User;
-import io.fabric8.api.Container;
 import io.fabric8.api.ServiceLocator;
-import io.fabric8.itests.paxexam.support.ContainerBuilder;
 import io.fabric8.itests.paxexam.support.FabricTestSupport;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.methods.PutMethod;
@@ -34,13 +32,14 @@ import org.ops4j.pax.exam.junit.Configuration;
 import org.ops4j.pax.exam.junit.ExamReactorStrategy;
 import org.ops4j.pax.exam.junit.JUnit4TestRunner;
 import org.ops4j.pax.exam.junit.ProbeBuilder;
+import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
 import org.ops4j.pax.exam.spi.reactors.EagerSingleStagedReactorFactory;
 import org.osgi.framework.Constants;
 
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.net.URL;
-import java.util.Set;
+import java.util.List;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -48,7 +47,7 @@ import static org.ops4j.pax.exam.OptionUtils.combine;
 
 
 @RunWith(JUnit4TestRunner.class)
-@ExamReactorStrategy(EagerSingleStagedReactorFactory.class)
+@ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
 public class UserServiceIntegrationTest extends FabricTestSupport
 {
 
@@ -109,12 +108,8 @@ public class UserServiceIntegrationTest extends FabricTestSupport
     @Test
     public void shouldCreateAndRetriveUserWithDAL() throws Exception
     {
-
-        Set<Container> containers = null;
         try
         {
-            containers = ContainerBuilder.create().withName("cnt2").withProfiles("default").assertProvisioningResult().build();
-
             UserService proxy = ServiceLocator.awaitService(this.bundleContext, UserService.class);
             assertNotNull(proxy);
 
@@ -134,60 +129,90 @@ public class UserServiceIntegrationTest extends FabricTestSupport
 
             user.setProperties(new JSON(properties));
             proxy.create(user);
-            assertTrue(proxy.findAll().size() == 1);
+
+            List<User> result = proxy.findAll();
+            assertTrue(result.size() == 1);
+
+            User returnedUser = result.get(0);
+            System.err.println(returnedUser.getName());
+            System.err.println(returnedUser.getProperties().toString());
+
+            assertTrue(returnedUser.getName().contains("alberto"));
+            assertTrue(returnedUser.getProperties().toString().contains("{\"string1\":{\"") && returnedUser.getProperties().toString().contains("\"num1\":{"));
         }
         catch (Exception e)
         {
             System.err.println(e.getMessage());
-        }
-        finally
-        {
-            ContainerBuilder.destroy(containers);
+            org.junit.Assert.fail("test failed");
         }
     }
 
     //@Test
     public void shouldCreateAndRetriveUserWithREST() throws Exception
     {
+        String payload =
+                "{ " +
+                        "\"name\": \"manel joao\", " +
+                        "\"properties\": {" +
+                            "\"value\": {" +
 
-        //create user
-        PutMethod put = new PutMethod(USER_MANAGER_URL);
-        put.addRequestHeader("Accept", "application/json");
-        RequestEntity entity = new StringRequestEntity("{ \"name\": \"manel joao\", \"properties\": \"{\"value\":\"{\"string1\":{\"mandatory\":false,\"value\":\"teste\",\"type\":\"string\"},\"num1\":{\"mandatory\":false,\"value\":123,\"type\":\"number\"}}\"}\" }", "application/json", "UTF-8");
-        put.setRequestEntity(entity);
+                                "\"num1\":{"+
+                                    "\"type\":\"number\", "+
+                                    "\"value\":\"1\", "+
+                                    "\"mandatory\":\"false\"}, "+
 
-        HttpClient httpclient = new HttpClient();
-        int result = 0;
+                                "\"string1\":{"+
+                                    "\"type\":\"string\", "+
+                                    "\"value\":\"teste\", "+
+                                    "\"mandatory\":\"false\"}"
+                        + "}}}";
         try
         {
-            result = httpclient.executeMethod(put);
-            assertTrue(result == 204);
+            //create user
+            PutMethod put = new PutMethod(USER_MANAGER_URL);
+            put.addRequestHeader("Accept", "application/json");
+            RequestEntity entity = new StringRequestEntity(payload, "application/json", "UTF-8");
+            put.setRequestEntity(entity);
+
+            HttpClient httpclient = new HttpClient();
+            int result = 0;
+            try
+            {
+                result = httpclient.executeMethod(put);
+                //System.err.println(result);
+                assertTrue(result == 204);
+            }
+            catch (Exception e)
+            {
+                org.junit.Assert.fail("Unable to create user");
+            }
+            finally
+            {
+                put.releaseConnection();
+            }
+
+            //get user
+            URL url = new URL(USER_MANAGER_URL);
+            InputStream in = null;
+            try
+            {
+                in = url.openStream();
+            }
+            catch (Exception e)
+            {
+                org.junit.Assert.fail("Connection error");
+            }
+
+            String res = getStringFromInputStream(in);
+            System.err.println(res);
+
+            assertTrue(res.contains("\"name\":\"manel joao\"") && res.contains("\"string1\":{") && res.contains("\"num1\":{"));
         }
         catch (Exception e)
         {
-            org.junit.Assert.fail("Unable to create user");
+            System.err.println(e.getMessage());
+            org.junit.Assert.fail("test failed");
         }
-        finally
-        {
-            put.releaseConnection();
-        }
-
-        //get user
-        URL url = new URL(USER_MANAGER_URL);
-        InputStream in = null;
-        try
-        {
-            in = url.openStream();
-        }
-        catch (Exception e)
-        {
-            org.junit.Assert.fail("Connection error");
-        }
-
-        String res = getStringFromInputStream(in);
-        System.err.println(res);
-
-        assertTrue(res.contains("{\"name\":\"manel joao\"}"));
     }
 
     private static String getStringFromInputStream(InputStream in) throws Exception
