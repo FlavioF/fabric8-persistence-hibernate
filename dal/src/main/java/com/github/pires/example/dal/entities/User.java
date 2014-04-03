@@ -12,40 +12,38 @@
  */
 package com.github.pires.example.dal.entities;
 
-public class User
-{
+import com.bikeemotion.common.spatial.GeoPoint;
 
-    private String name;
-    private JSON properties;
+public class User {
 
-    public User()
-    {
-    }
+  private String name;
+  private JSON properties;
+  private GeoPoint location;
 
-    public String getName()
-    {
-        return name;
-    }
+  public User() {
+  }
 
-    public void setName(String name)
-    {
-        this.name = name;
-    }
+  public String getName() {
+    return name;
+  }
 
+  public void setName(String name) {
+    this.name = name;
+  }
+  
+  public JSON getProperties() {
+    return properties;
+  }
 
-    /**
-     * @return the properties
-     */
-    public JSON getProperties()
-    {
-        return properties;
-    }
+  public void setProperties(JSON properties) {
+    this.properties = properties;
+  }
 
-    /**
-     * @param properties the properties to set
-     */
-    public void setProperties(JSON properties)
-    {
-        this.properties = properties;
-    }
+  public GeoPoint getLocation() {
+    return location;
+  }
+
+  public void setLocation(GeoPoint location) {
+    this.location = location;
+  }
 }

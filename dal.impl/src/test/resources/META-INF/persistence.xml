@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Copyright (C) Bikeemotion
+    2014
+
+    The reproduction, transmission or use of this document or its contents is not
+    permitted without express written authorization. All rights, including rights
+    created by patent grant or registration of a utility model or design, are
+    reserved. Modifications made to this document are restricted to authorized
+    personnel only. Technical specifications and features are binding only when
+    specifically and expressly agreed upon in a written contract.
+
+-->
+<persistence
+  xsi:schemaLocation="
+        http://java.sun.com/xml/ns/persistence
+        http://java.sun.com/xml/ns/persistence/persistence_2_0.xsd"
+  xmlns="http://java.sun.com/xml/ns/persistence"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  version="2.0">
+  <persistence-unit
+    name="test"
+    transaction-type="RESOURCE_LOCAL">
+    <provider>org.hibernate.ejb.HibernatePersistence</provider>
+    <class>com.github.pires.example.dal.impl.entities.UserEntity</class>
+    <properties>
+      <property
+        name="javax.persistence.jdbc.url"
+        value="jdbc:postgresql://localhost:5432/bedb" />
+      <property
+        name="javax.persistence.jdbc.driver"
+        value="org.postgresql.Driver" />
+      <property
+        name="javax.persistence.jdbc.user"
+        value="postgres" />
+      <property
+        name="javax.persistence.jdbc.password"
+        value="bikeemotion" />
+      <property
+        name="hibernate.dialect"
+        value="com.bikeemotion.common.hibernate.CustomPostgreGisSQLDialect" />
+
+      <property
+        name="hibernate.archive.autodetection"
+        value="class" />
+      <property
+        name="hibernate.show_sql"
+        value="true" />
+      <property
+        name="hibernate.format_sql"
+        value="true" />
+      <property
+        name="hibernate.hbm2ddl.auto"
+        value="create" />
+    </properties>
+  </persistence-unit>
+</persistence>

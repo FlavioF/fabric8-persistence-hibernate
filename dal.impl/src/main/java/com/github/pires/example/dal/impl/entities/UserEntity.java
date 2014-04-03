@@ -13,13 +13,11 @@
 package com.github.pires.example.dal.impl.entities;
 
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Version;
+import javax.persistence.*;
 
 import com.github.pires.example.dal.entities.JSON;
+import com.vividsolutions.jts.geom.Point;
+import org.hibernate.annotations.Type;
 
 @Entity
 @org.hibernate.annotations.TypeDefs({@org.hibernate.annotations.TypeDef(name = "JSON", defaultForType =  com.github.pires.example.dal.entities.JSON.class, typeClass = com.github.pires.example.dal.impl.json.JSONUserType.class)})
@@ -28,11 +26,19 @@ public class UserEntity {
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
   private Long id;
+  
   @Version
   private Long version;
+  
   private String name;
+  
   private JSON properties;
+  
+  @Type(type = "org.hibernate.spatial.GeometryType")
+  @Column(nullable = false, unique = true)
+  private Point location;
 
+  //public API
   public UserEntity() {
     this.properties = new JSON();
   }
@@ -53,20 +59,22 @@ public class UserEntity {
     this.name = name;
   }
 
-  /**
-   * @return the properties
-   */
   public JSON getProperties() {
     return properties;
   }
 
-  /**
-   * @param properties the properties to set
-   */
   public void setProperties(JSON properties) {
     this.properties = properties;
   }
 
+  public Point getLocation() {
+    return this.location;
+  }
+
+  public void setLocation(Point location) {
+    this.location = location;
+  }
+  
   @Override
   public String toString() {
     return "Person{"

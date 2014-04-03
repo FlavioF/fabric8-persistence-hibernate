@@ -16,8 +16,7 @@
         <maven-compiler-plugin.version>3.1</maven-compiler-plugin.version>
         <maven-resources-plugin.version>2.6</maven-resources-plugin.version>
         <build-helper-maven-plugin.version>1.8</build-helper-maven-plugin.version>
-        <java.version>1.7</java.version>
-        <jackson.version>1.9.13</jackson.version>
+        <java.version>1.7</java.version>        
         <slf4j.version>1.7.5</slf4j.version>
         <log4j.version>1.2.17</log4j.version>
         <junit.version>[4.11,)</junit.version>
@@ -27,14 +26,10 @@
         <osgi.version>5.0.0</osgi.version>
     </properties>
 
-    <modules>
-        <module>feature-persistence</module>
+    <modules>        
         <module>dal</module>
-        <module>dal.impl</module>
-        <module>datasource-hsqldb</module>
-        <module>rest</module>
-        <module>datasource-postgresdb</module>
-        <module>tests</module>
+        <module>dal.impl</module>        
+        <module>rest</module>                
     </modules>
 
     <dependencyManagement>
@@ -84,11 +79,53 @@
             <dependency>
                 <groupId>com.fasterxml.jackson.jaxrs</groupId>
                 <artifactId>jackson-jaxrs-json-provider</artifactId>
-                <version>2.2.3</version>
+                <version>2.3.0</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
 
+    <repositories>
+      <repository>
+        <id>fusesource.m2</id>
+        <name>FuseSource Community Release Repository</name>
+        <url>https://repo.fusesource.com/nexus/content/groups/public</url>
+        <snapshots>
+          <enabled>false</enabled>
+        </snapshots>
+        <releases>
+          <enabled>true</enabled>
+        </releases>
+      </repository>
+  
+      <repository>
+        <id>fusesource.ea</id>
+        <name>FuseSource Community Early Access Release Repository</name>
+        <url>https://repo.fusesource.com/nexus/content/groups/ea</url>
+        <snapshots>
+          <enabled>false</enabled>
+        </snapshots>
+        <releases>
+          <enabled>true</enabled>
+        </releases>
+      </repository>
+  
+      <repository>
+        <id>OSGEO GeoTools repo</id>
+        <url>http://download.osgeo.org/webdav/geotools</url>
+      </repository>
+  
+      <repository>
+        <id>Hibernate Spatial repo</id>
+        <url>http://www.hibernatespatial.org/repository</url>
+      </repository>
+  
+      <!-- add JBOSS repository for easy access to Hibernate libraries -->
+      <repository>
+        <id>JBOSS</id>
+        <url>https://repository.jboss.org/nexus/content/repositories/releases</url>
+      </repository>
+    </repositories>
+  
     <build>
         <resources>
             <resource>

@@ -17,6 +17,11 @@
 
   <dependencies>
     <dependency>
+      <groupId>org.testng</groupId>
+      <artifactId>testng</artifactId>
+      <version>[6.8.7,)</version>
+    </dependency>
+    <dependency>
       <groupId>org.osgi</groupId>
       <artifactId>org.osgi.core</artifactId>
     </dependency>
@@ -48,9 +53,20 @@
       <version>4.2.7.Final</version>
     </dependency>
     <dependency>
+      <groupId>org.hibernate</groupId>
+      <artifactId>hibernate-spatial</artifactId>
+      <version>4.0</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
       <groupId>org.json</groupId>
       <artifactId>json</artifactId>
       <version>20140107</version>
+    </dependency>
+    <dependency>
+      <groupId>com.bikeemotion</groupId>
+      <artifactId>common-framework</artifactId>
+      <version>0.1-SNAPSHOT</version>
     </dependency>
   </dependencies>
 
@@ -59,6 +75,8 @@
       org.hibernate.proxy,
       javassist.util.proxy,
       com.github.pires.example.dal,
+      com.bikeemotion.common.hibernate,
+      org.hibernate.spatial,
       *
     </osgi.import.pkg>
     <osgi.export.pkg></osgi.export.pkg>
@@ -66,4 +84,6 @@
     <osgi.meta.persistence>META-INF/persistence.xml</osgi.meta.persistence>
   </properties>
 
+  
+  
 </project>
