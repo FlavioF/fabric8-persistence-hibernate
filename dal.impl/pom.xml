@@ -56,8 +56,39 @@
       <groupId>org.hibernate</groupId>
       <artifactId>hibernate-spatial</artifactId>
       <version>4.0</version>
-      <scope>provided</scope>
+      <scope>provided</scope>      
+      <exclusions>
+        <exclusion>
+          <groupId>postgresql</groupId>
+          <artifactId>postgresql</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.postgis</groupId>
+          <artifactId>postgis-jdbc</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>com.vividsolutions</groupId>
+          <artifactId>jts</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
+
+    <dependency>
+      <groupId>org.apache.servicemix.bundles</groupId>
+      <artifactId>org.apache.servicemix.bundles.postgresql</artifactId>
+      <version>9.2-1003-jdbc4_1</version>
+    </dependency>
+    <dependency>
+      <groupId>org.postgis</groupId>
+      <artifactId>postgis-jdbc</artifactId>
+      <version>1.5.2</version>
+    </dependency>
+    <dependency>
+      <groupId>com.vividsolutions</groupId>
+      <artifactId>jts</artifactId>
+      <version>1.13</version>
+    </dependency>
+    
     <dependency>
       <groupId>org.json</groupId>
       <artifactId>json</artifactId>
@@ -68,6 +99,14 @@
       <artifactId>common-framework</artifactId>
       <version>0.1-SNAPSHOT</version>
     </dependency>
+
+    <dependency>
+      <groupId>org.hibernate.javax.persistence</groupId>
+      <artifactId>hibernate-jpa-2.0-api</artifactId>
+      <version>1.0.1.Final</version>
+    </dependency>
+    
+
   </dependencies>
 
   <properties>

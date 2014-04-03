@@ -20,17 +20,23 @@
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   version="2.0">
 
-  <persistence-unit
-    name="PU"
-    transaction-type="JTA">
+  <persistence-unit name="PU" transaction-type="JTA">
     <provider>org.hibernate.ejb.HibernatePersistence</provider>
     <jta-data-source>osgi:service/javax.sql.DataSource/(osgi.jndi.service.name=jdbc/postgresds)</jta-data-source>
     <class>com.github.pires.example.dal.impl.entities.UserEntity</class>
     <exclude-unlisted-classes>true</exclude-unlisted-classes>
-    <properties>
-      <property name="hibernate.hbm2ddl.auto" value="create-drop" />
-      <property name="hibernate.archive.autodetection" value="class, hbm" />
+    <properties>            
       <property name="hibernate.dialect" value="com.bikeemotion.common.hibernate.CustomPostgreGisSQLDialect"/>
+      <property name="hibernate.archive.autodetection" value="class, hbm" />
+      <property name="hibernate.hbm2ddl.auto" value="create" />
+      <property name="hibernate.show_sql" value="true" />
+      <property name="hibernate.format_sql" value="true" />
+      
+      <!--<property name="hibernate.connection.driver_class" value="org.postgresql.Driver" />-->
+      <!--<property name="javax.persistence.jdbc.driver" value="org.postgis.DriverWrapper" />-->
+      <!--<property name="javax.persistence.jdbc.url" value="jdbc:postgresql_postGIS://localhost:5432/bedb" />-->
+      <property name="javax.persistence.jdbc.driver" value="org.postgis.DriverWrapper" />
+      
     </properties>
   </persistence-unit>
 </persistence>
