@@ -35,7 +35,7 @@
       <!--<property name="hibernate.connection.driver_class" value="org.postgresql.Driver" />-->
       <!--<property name="javax.persistence.jdbc.driver" value="org.postgis.DriverWrapper" />-->
       <!--<property name="javax.persistence.jdbc.url" value="jdbc:postgresql_postGIS://localhost:5432/bedb" />-->
-      <property name="javax.persistence.jdbc.driver" value="org.postgis.DriverWrapper" />
+      <!--<property name="javax.persistence.jdbc.driver" value="org.postgis.DriverWrapper" />-->
       
     </properties>
   </persistence-unit>
