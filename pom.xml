@@ -124,6 +124,11 @@
         <id>JBOSS</id>
         <url>https://repository.jboss.org/nexus/content/repositories/releases</url>
       </repository>
+
+      <repository>
+        <id>gvnix</id>
+        <url>http://gvnix.googlecode.com/svn/repo/</url>
+      </repository>
     </repositories>
   
     <build>

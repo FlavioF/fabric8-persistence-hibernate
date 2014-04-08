@@ -92,15 +92,15 @@ public class test1 {
     User value = getFullObject();
     UUID id;
 
-//    try {
-//      tx.begin();
-//      service.create(value);      
-//      tx.commit();      
-//    } catch (Exception ex) {
-//      if (tx.isActive())
-//        tx.rollback();
-//      throw ex;
-//    }
+    try {
+      tx.begin();
+      service.create(value);      
+      tx.commit();      
+    } catch (Exception ex) {
+      if (tx.isActive())
+        tx.rollback();
+      throw ex;
+    }
 
     int count = service.findAll().size();
     
