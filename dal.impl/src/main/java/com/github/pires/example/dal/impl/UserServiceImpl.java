@@ -17,10 +17,13 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import com.bikeemotion.common.spatial.GeoPoint;
+import javax.ws.rs.Path;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.bikeemotion.common.Utils;
+import com.bikeemotion.spatial.GeoPoint;
 import com.github.pires.example.dal.UserService;
 import com.github.pires.example.dal.entities.User;
 import com.github.pires.example.dal.impl.daos.UserEntityDao;
@@ -29,6 +32,7 @@ import com.github.pires.example.dal.impl.entities.UserEntity;
 /**
  * Implementation of {@link UserService} OSGi service.
  */
+@Path("/user")
 public class UserServiceImpl implements UserService {
 
   private static final Logger log = LoggerFactory.getLogger(UserService.class);
@@ -36,6 +40,7 @@ public class UserServiceImpl implements UserService {
   private final String PROPERTIES_SCHEMA = "{" + "\"num1\":{" + "\"type\":number, " + "\"value\":0, " + "\"mandatory\":false}, " + "\"string1\":{" + "\"type\":string, " + "\"value\":\"teste\", " + "\"mandatory\":false}" + "}";
 
   public UserServiceImpl() {
+
   }
 
   public void create(User user) {
@@ -44,9 +49,10 @@ public class UserServiceImpl implements UserService {
       UserEntity newEntity = new UserEntity();
       newEntity.setName(user.getName());
       newEntity.setProperties(user.getProperties());
-      newEntity.setLocation(user.getLocation().toPoint());
+      newEntity.setLocation(Utils.coordinatesToPoint(user.getLocation()));
 
       userDao.persist(newEntity);
+
     } catch (Exception e) {
       log.error(e.getMessage());
       throw e;
@@ -65,7 +71,7 @@ public class UserServiceImpl implements UserService {
         User user = new User();
         user.setName(entity.getName());
         user.setProperties(entity.getProperties());
-        user.setLocation(new GeoPoint(entity.getLocation()));
+        user.setLocation(new GeoPoint(entity.getLocation().getX(), entity.getLocation().getY()));
         users.add(user);
       }
       log.info("Found {} users", users.size());

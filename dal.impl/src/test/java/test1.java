@@ -10,21 +10,21 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-import com.bikeemotion.common.spatial.GeoPoint;
-import com.github.pires.example.dal.entities.JSON;
-import com.github.pires.example.dal.entities.User;
-import com.github.pires.example.dal.impl.UserServiceImpl;
-import com.github.pires.example.dal.impl.daos.UserEntityDao;
-import com.github.pires.example.dal.impl.entities.UserEntity;
+
+import java.util.Random;
+import java.util.UUID;
+
+import javax.persistence.*;
+
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import javax.persistence.*;
-import java.util.Random;
-import java.util.UUID;
-
-import static org.testng.Assert.assertNotNull;
+import com.bikeemotion.spatial.GeoPoint;
+import com.github.pires.example.dal.entities.JSON;
+import com.github.pires.example.dal.entities.User;
+import com.github.pires.example.dal.impl.UserServiceImpl;
+import com.github.pires.example.dal.impl.daos.UserEntityDao;
 
 public class test1 {
 
@@ -43,7 +43,6 @@ public class test1 {
     entityManager.setFlushMode(FlushModeType.COMMIT);
     entityManager.clear();
     tx = entityManager.getTransaction();
-    
 
     // provision daos
     dao = new UserEntityDao();
@@ -71,22 +70,12 @@ public class test1 {
 
     value.setName("Alberto");
     value.setLocation(randomGeo());
-    value.setProperties(new JSON("{\n"
-            + "         \"string1\":{\n"
-            + "            \"mandatory\":false,\n"
-            + "            \"value\":\"teste\",\n"
-            + "            \"type\":\"string\"\n"
-            + "         },\n"
-            + "         \"num1\":{\n"
-            + "            \"mandatory\":false,\n"
-            + "            \"value\":123,\n"
-            + "            \"type\":\"number\"\n"
-            + "         }\n"
-            + "      }"));
+    value.setProperties(new JSON("{\n" + "         \"string1\":{\n" + "            \"mandatory\":false,\n" + "            \"value\":\"teste\",\n" + "            \"type\":\"string\"\n" + "         },\n" + "         \"num1\":{\n"
+        + "            \"mandatory\":false,\n" + "            \"value\":123,\n" + "            \"type\":\"number\"\n" + "         }\n" + "      }"));
 
     return value;
   }
-  
+
   @Test
   public void test_stationBeacon_create() {
     User value = getFullObject();
@@ -94,15 +83,15 @@ public class test1 {
 
     try {
       tx.begin();
-      service.create(value);      
-      tx.commit();      
+      service.create(value);
+      tx.commit();
     } catch (Exception ex) {
       if (tx.isActive())
         tx.rollback();
       throw ex;
     }
 
-    int count = service.findAll().size();
-    
+    int count = service.findAll().size() | 0;
+
   }
 }

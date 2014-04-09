@@ -50,8 +50,11 @@
     </dependency>
     <dependency>
       <groupId>com.bikeemotion</groupId>
-      <artifactId>common-framework</artifactId>
-      <version>0.1-SNAPSHOT</version>
+      <artifactId>common-framework</artifactId>      
+    </dependency>
+    <dependency>
+      <groupId>com.bikeemotion</groupId>
+      <artifactId>spatial-framework</artifactId>
     </dependency>
   </dependencies>    
 

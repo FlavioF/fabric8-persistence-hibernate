@@ -35,6 +35,7 @@ public class UserEntity {
   private JSON properties;
   
   @Column(nullable = false, unique = true)
+  @Type(type = "org.hibernate.spatial.GeometryType")
   private Point location;
 
   //public API
@@ -66,8 +67,7 @@ public class UserEntity {
   public void setProperties(JSON properties) {
     this.properties = properties;
   }
-
-  @Type(type = "org.hibernate.spatial.GeometryType")
+  
   public Point getLocation() {
     return this.location;
   }

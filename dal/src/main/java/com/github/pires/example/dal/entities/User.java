@@ -12,7 +12,8 @@
  */
 package com.github.pires.example.dal.entities;
 
-import com.bikeemotion.common.spatial.GeoPoint;
+
+import com.bikeemotion.spatial.GeoPoint;
 
 public class User {
 
